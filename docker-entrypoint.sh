@@ -38,6 +38,7 @@ else
 fi
 
 echo "[entrypoint] Starting PostgreSQL on :5432 ..."
+rm -f "$PGDATA/postmaster.pid"
 su - postgres -c "/usr/lib/postgresql/17/bin/pg_ctl -D $PGDATA -l /tmp/pg.log start"
 
 # Wait for PostgreSQL to accept connections
