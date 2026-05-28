@@ -47,6 +47,10 @@ max_connections = 25
 work_mem = 1MB
 PGCONF
 fi
+# Ensure /var/run/postgresql exists for the Unix-socket lock file (containers tmpfs).
+   mkdir -p /var/run/postgresql
+   chown postgres:postgres /var/run/postgresql
+   chmod 2775 /var/run/postgresql
 echo "[entrypoint] Starting PostgreSQL on :5432 ..."
 rm -f "$PGDATA/postmaster.pid"
 su - postgres -c "/usr/lib/postgresql/17/bin/pg_ctl -D $PGDATA -l /tmp/pg.log start" || {
