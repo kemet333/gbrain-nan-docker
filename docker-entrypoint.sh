@@ -49,7 +49,12 @@ PGCONF
 fi
 echo "[entrypoint] Starting PostgreSQL on :5432 ..."
 rm -f "$PGDATA/postmaster.pid"
-su - postgres -c "/usr/lib/postgresql/17/bin/pg_ctl -D $PGDATA -l /tmp/pg.log start"
+su - postgres -c "/usr/lib/postgresql/17/bin/pg_ctl -D $PGDATA -l /tmp/pg.log start" || {
+     echo "===== POSTGRES STARTUP LOG (/tmp/pg.log) ====="
+     cat /tmp/pg.log 2>/dev/null || echo "(no pg.log)"
+     echo "===== END LOG ====="
+     exit 1
+   }"
 
 # Wait for PostgreSQL to accept connections
 for i in $(seq 1 15); do
