@@ -36,7 +36,17 @@ EOF
 else
   echo "[entrypoint] Found existing PostgreSQL cluster at $PGDATA"
 fi
+# nan.builders Apps fix: /dev/shm restringido → System V + perfil de baja memoria.
+if ! grep -q "## NAN-APPS LOW-MEM PROFILE" "$PGDATA/postgresql.conf"; then
+  cat >> "$PGDATA/postgresql.conf" <<'PGCONF'
 
+## NAN-APPS LOW-MEM PROFILE
+dynamic_shared_memory_type = sysv
+shared_buffers = 16MB
+max_connections = 25
+work_mem = 1MB
+PGCONF
+fi
 echo "[entrypoint] Starting PostgreSQL on :5432 ..."
 rm -f "$PGDATA/postmaster.pid"
 su - postgres -c "/usr/lib/postgresql/17/bin/pg_ctl -D $PGDATA -l /tmp/pg.log start"
