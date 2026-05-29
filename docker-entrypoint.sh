@@ -84,8 +84,16 @@ su - postgres -c "psql ${POSTGRES_DB} -tc \"SELECT 1 FROM pg_extension WHERE ext
 export DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@127.0.0.1:5432/${POSTGRES_DB}"
 
 # ─── Setup directories ────────────────────────────────────────────────
-GBRAIN_HOME="/data/gbrain-home"
+# IMPORTANT: export so gbrain CLI reads from this path.  Without the export,
+# gbrain falls back to ~/.gbrain/config.json and silently uses ZeroEntropy
+# embeddings (the default) instead of our litellm:qwen3-embedding setup.
+export GBRAIN_HOME="/data/gbrain-home"
 mkdir -p "$GBRAIN_HOME"
+
+# Belt-and-suspenders: symlink standard path → custom path so gbrain finds the
+# config whether it honors GBRAIN_HOME or only the default ~/.gbrain/ location.
+mkdir -p "$HOME/.gbrain"
+ln -sfn "$GBRAIN_HOME/config.json" "$HOME/.gbrain/config.json"
 
 # ─── Write gbrain config.json ─────────────────────────────────────────
 cat > "$GBRAIN_HOME/config.json" <<EOF
